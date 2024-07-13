@@ -279,6 +279,11 @@ extension UTMAppleConfiguration {
         }
         vzconfig.networkDevices.append(contentsOf: networks.compactMap({ $0.vzNetworking() }))
         vzconfig.serialPorts.append(contentsOf: serials.compactMap({ $0.vzSerial() }))
+        if system.needDebug {
+            let debugConfig = _VZGDBDebugStubConfiguration()
+            debugConfig.port = system.debugPort
+            vzconfig._setDebugStub(debugConfig)
+        }
         // add remaining devices
         try virtualization.fillVZConfiguration(vzconfig, isMacOSGuest: system.boot.operatingSystem == .macOS)
         #if arch(arm64)

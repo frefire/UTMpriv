@@ -79,7 +79,7 @@ struct UTMAppleConfigurationSerial: Codable, Identifiable {
             return nil
         }
         let attachment = VZFileHandleSerialPortAttachment(fileHandleForReading: fileHandleForReading, fileHandleForWriting: fileHandleForWriting)
-        let serialConfig = VZVirtioConsoleDeviceSerialPortConfiguration()
+        let serialConfig = _VZPL011SerialPortConfiguration()
         serialConfig.attachment = attachment
         return serialConfig
     }

@@ -19,6 +19,7 @@ import Virtualization
 
 struct VMConfigAppleSystemView: View {
     private let bytesInMib = UInt64(1048576)
+    @State private var importFileShown: Bool = false
     
     @Binding var config: UTMAppleConfigurationSystem
     
@@ -61,6 +62,21 @@ struct VMConfigAppleSystemView: View {
                 if config.memorySize > maxMemory {
                     config.memorySize = maxMemory
                 }
+            }
+            
+            Toggle("Need debug", isOn: $config.needDebug)
+            NumberTextField("Debug port", number: $config.debugPort)
+                .frame(width: 160)
+            
+            Toggle("Use custom rom", isOn: $config.useCustomRom)
+            FileBrowseField("Rom path", url: $config.romPath, isFileImporterPresented: $importFileShown)
+        
+        }
+        .fileImporter(isPresented: $importFileShown, allowedContentTypes: [.data]) { result in
+            switch result {
+            case .success(let url):
+                config.romPath = url
+            case .failure(_): break
             }
         }
     }

@@ -55,4 +55,7 @@ typedef CF_ENUM(uint32_t, CGSGlobalHotKeyOperatingMode) {
 };
 extern CGSConnectionID CGSMainConnectionID(void);
 extern CGError CGSSetGlobalHotKeyOperatingMode(CGSConnectionID connection, CGSGlobalHotKeyOperatingMode mode);
+
+#include "../private/Virtualization_bridging.h"
+
 #endif

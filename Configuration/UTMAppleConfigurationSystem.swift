@@ -41,6 +41,14 @@ struct UTMAppleConfigurationSystem: Codable {
     /// The RAM of the guest in MiB.
     var memorySize: Int = 4096
     
+    var needDebug: Bool = false
+    
+    var debugPort: Int = 10086
+    
+    var useCustomRom: Bool = false
+    
+    var romPath: URL?
+    
     var boot: UTMAppleConfigurationBoot = try! .init(for: .none)
     
     var macPlatform: UTMAppleConfigurationMacPlatform?
@@ -51,6 +59,10 @@ struct UTMAppleConfigurationSystem: Codable {
         case architecture = "Architecture"
         case cpuCount = "CPUCount"
         case memorySize = "MemorySize"
+        case needDebug = "NeedDebug"
+        case debugPort = "DebugPort"
+        case useCustomRom = "UseCustomRom"
+        case romPath = "RomPath"
         case boot = "Boot"
         case macPlatform = "MacPlatform"
         case genericPlatform = "GenericPlatform"
@@ -64,6 +76,10 @@ struct UTMAppleConfigurationSystem: Codable {
         architecture = try values.decode(String.self, forKey: .architecture)
         cpuCount = try values.decode(Int.self, forKey: .cpuCount)
         memorySize = try values.decode(Int.self, forKey: .memorySize)
+        needDebug = try values.decodeIfPresent(Bool.self, forKey: .needDebug) ?? false
+        debugPort = try values.decodeIfPresent(Int.self, forKey: .debugPort) ?? 10086
+        useCustomRom = try values.decodeIfPresent(Bool.self, forKey: .useCustomRom) ?? false
+        romPath = try values.decodeIfPresent(URL.self, forKey: .romPath)
         boot = try values.decode(UTMAppleConfigurationBoot.self, forKey: .boot)
         macPlatform = try values.decodeIfPresent(UTMAppleConfigurationMacPlatform.self, forKey: .macPlatform)
         genericPlatform = try values.decodeIfPresent(UTMAppleConfigurationGenericPlatform.self, forKey: .genericPlatform)
@@ -80,6 +96,10 @@ struct UTMAppleConfigurationSystem: Codable {
         } else if boot.operatingSystem == .linux {
             try container.encodeIfPresent(genericPlatform, forKey: .genericPlatform)
         }
+        try container.encode(needDebug, forKey: .needDebug)
+        try container.encode(debugPort, forKey: .debugPort)
+        try container.encode(useCustomRom, forKey: .useCustomRom)
+        try container.encodeIfPresent(romPath, forKey: .romPath)
     }
 }
 
@@ -130,6 +150,11 @@ extension UTMAppleConfigurationSystem {
                let macPlatform = macPlatform,
                let platform = macPlatform.vzMacPlatform() {
                 vzconfig.platform = platform
+                if useCustomRom,
+                   let romPath = romPath {
+                    let b : VZMacOSBootLoader = vzconfig.bootLoader as! VZMacOSBootLoader
+                    b._setROMURL(romPath)
+                }
             } else {
                 throw UTMAppleConfigurationError.platformUnsupported
             }
